@@ -1,0 +1,77 @@
+Установка на сервер Ubuntu-14 (jino.ru)
+
+apt-get update
+apt-get upgrade
+apt-get install sudo dialog apt-utils aptitude
+apt-get install bsdutils
+
+apt-get nano
+useradd prof1983
+passwd prof1983
+
+
+# Добавляем пользователя в sudoers
+nano /etc/sudoers
+# Ниже root пишем: имя_юзера   ALL=(ALL:ALL) ALL 
+# Жмём "ctrl+o" "enter" "ctrl+x" перзагружаемся и на этом всё.
+
+
+su prof1983
+
+
+# Install add-apt-repository
+sudo apt-get install software-properties-common
+sudo apt-get install python-software-properties
+sudo dpkg-reconfigure python-software-properties
+
+
+sudo mkdir /p
+sudo chmod 775 /p
+sudo chown -R prof1983 /p
+
+sudo apt-get install nginx nodejs nodejs-legacy npm
+sudo apt-get install mysql-server
+#sudo apt-get install mariadb-server mariadb-client
+sudo mysql_install_db
+# Далее нам необходимо запустить сценарий безопасности, который изменит некоторые настройки идущие по умолчанию:
+#sudo mysql_secure_installation
+sudo apt-get install php5-fpm php5-mysql
+sudo apt-get install openssl
+
+# Повышаем безопасность PHP-FPM
+# Для повышения безопасности работы с PHP нам надо произвести донастройку.
+# Отроем на редактирование файл:
+# sudo nano /etc/php5/fpm/php.ini
+# после чего, найдем строчку содержащую «cgi.fix_pathinfo», которая по-умолчанию выглядит так:
+# ;cgi.fix_pathinfo = 1
+# раскомментируем ее и изменим значение, должно получиться так:
+# cgi.fix_pathinfo = 0
+
+sudo apt-get install git
+cd /p
+git clone https://github.com/prof1983/el.git
+
+sudo npm install
+sudo npm install etoken-lib
+sudo npm install web3
+
+# Install php composer
+sudo apt-get install curl php5-cli git
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+# sudo apt-get install php5-mcrypt
+# sudo php5enmod mcrypt
+# php -i | grep mcrypt
+
+composer install
+#composer update
+
+# Укажите `ip:port` ноды сети ethereum в файле `public/ether/config.js`.
+# В файле `config/api.php` укажите `apiKey` приложения. Также в этом файле
+# можно задать интервал сканирования входящих транзакций в минутках и кол-во
+# блоков. В файле `.env` укажите реквизиты подключения к базе данных `mysql`.
+
+# Для настройки отслеживания входящих транзакций необходимо добавить запуск cron-задачи каждую минуту:
+# * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
+echo "* * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1" >> /var/spool/cron/root
+service crond restart
